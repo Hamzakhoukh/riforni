@@ -50,7 +50,7 @@ class CartItemTile extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                      color: AppTheme.terracotta, width: 2),
+                      color: AppTheme.primary, width: 2),
                 ),
               ),
             ),
@@ -68,7 +68,7 @@ class CartItemTile extends StatelessWidget {
                   Navigator.of(ctx).pop();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.terracotta,
+                  backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 48),
                   shape: RoundedRectangleBorder(
@@ -116,7 +116,7 @@ class CartItemTile extends StatelessWidget {
             padding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.terracotta,
+              color: AppTheme.primary,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

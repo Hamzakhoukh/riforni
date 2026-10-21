@@ -53,7 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       const SnackBar(
         content: Text('Salvato ✓'),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xFF16A34A),
+        backgroundColor: AppTheme.statusSuccess,
       ),
     );
   }
@@ -63,9 +63,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final rp = context.watch<RestaurantProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppTheme.bgCanvas,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: AppTheme.bgCanvas,
         elevation: 0,
         scrolledUnderElevation: 0,
         title: const Text(
@@ -143,7 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppTheme.borderSubtle),
         boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
@@ -212,7 +212,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textMain,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -223,11 +223,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
+                      color: AppTheme.borderMuted,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.edit_rounded,
-                        size: 14, color: Color(0xFF64748B)),
+                        size: 14, color: AppTheme.textSecondary),
                   ),
                 ),
               ],
@@ -243,7 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textMain,
                     ),
                     decoration: InputDecoration(
                       hintText: 'es. Ristorante Da Mario',
@@ -293,11 +293,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 await context.read<RestaurantProvider>().removeLogo();
               },
               icon: const Icon(Icons.delete_outline_rounded,
-                  size: 15, color: Color(0xFFEF4444)),
+                  size: 15, color: AppTheme.statusDanger),
               label: const Text(
                 'Rimuovi foto',
                 style: TextStyle(
-                    color: Color(0xFFEF4444),
+                    color: AppTheme.statusDanger,
                     fontSize: 13,
                     fontWeight: FontWeight.w600),
               ),
@@ -318,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF94A3B8),
+            color: AppTheme.textMuted,
             letterSpacing: 1.0,
           ),
         ),
@@ -328,7 +328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppTheme.borderSubtle),
           boxShadow: AppTheme.cardShadow,
         ),
         clipBehavior: Clip.antiAlias,
@@ -336,7 +336,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
   Widget _divider() => const Divider(
-      height: 1, indent: 56, endIndent: 0, color: Color(0xFFF1F5F9));
+      height: 1, indent: 56, endIndent: 0, color: AppTheme.borderMuted);
 
   Widget _tile({
     required IconData icon,
@@ -369,20 +369,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
-                        color: Color(0xFF0F172A)),
+                        color: AppTheme.textMain),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
                     Text(subtitle,
                         style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF64748B))),
+                            fontSize: 12, color: AppTheme.textSecondary)),
                   ],
                 ],
               ),
             ),
             if (onTap != null)
               const Icon(Icons.chevron_right_rounded,
-                  color: Color(0xFFCBD5E1), size: 20),
+                  color: AppTheme.textMuted, size: 20),
           ],
         ),
       ),

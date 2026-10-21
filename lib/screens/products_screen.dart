@@ -165,7 +165,7 @@ class ProductsScreen extends StatelessWidget {
                               subtitle: s.id == defaultSupplierId
                                   ? const Text('Predefinito',
                                       style: TextStyle(
-                                          color: AppTheme.terracotta,
+                                          color: AppTheme.primary,
                                           fontSize: 12))
                                   : null,
                               value:
@@ -188,7 +188,7 @@ class ProductsScreen extends StatelessWidget {
                                   }
                                 });
                               },
-                              activeColor: AppTheme.terracotta,
+                              activeColor: AppTheme.primary,
                             )),
                       ],
                       const SizedBox(height: 20),
@@ -254,7 +254,7 @@ class _ProductTile extends StatelessWidget {
           SlidableAction(
             onPressed: (_) =>
                 ProductsScreen._showProductDialog(context, product),
-            backgroundColor: AppTheme.terracotta,
+            backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,
             icon: Icons.edit,
             label: 'Modifica',
@@ -305,7 +305,7 @@ class _ProductTile extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppTheme.terracotta.withAlpha(20),
+                  color: AppTheme.primary.withAlpha(20),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -315,7 +315,7 @@ class _ProductTile extends StatelessWidget {
                         : '?',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.terracotta,
+                      color: AppTheme.primary,
                     ),
                   ),
                 ),

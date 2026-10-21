@@ -69,7 +69,7 @@ class _CategorieScreenState extends State<CategorieScreen> {
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: AppTheme.terracotta, width: 2),
+                        BorderSide(color: AppTheme.primary, width: 2),
                   ),
                 ),
                 validator: (v) =>
@@ -203,7 +203,7 @@ class _CategorieScreenState extends State<CategorieScreen> {
                       SlidableAction(
                         onPressed: (_) =>
                             _showCategoryDialog(context, existing: cat),
-                        backgroundColor: AppTheme.terracotta,
+                        backgroundColor: AppTheme.primary,
                         foregroundColor: Colors.white,
                         icon: Icons.edit,
                         label: 'Modifica',
@@ -227,9 +227,9 @@ class _CategorieScreenState extends State<CategorieScreen> {
                               style: const TextStyle(fontSize: 28))
                           : CircleAvatar(
                               backgroundColor:
-                                  AppTheme.terracotta.withAlpha(20),
+                                  AppTheme.primary.withAlpha(20),
                               child: const Icon(Icons.category,
-                                  color: AppTheme.terracotta, size: 20),
+                                  color: AppTheme.primary, size: 20),
                             ),
                       title: Text(
                         cat.nome,

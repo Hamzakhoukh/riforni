@@ -23,7 +23,7 @@ class SupplierCard extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) => onEdit(),
-            backgroundColor: AppTheme.terracotta,
+            backgroundColor: AppTheme.primary,
             foregroundColor: Colors.white,
             icon: Icons.edit,
             label: 'Modifica',
@@ -41,11 +41,11 @@ class SupplierCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: ListTile(
           leading: CircleAvatar(
-            backgroundColor: AppTheme.terracotta.withAlpha(20),
+            backgroundColor: AppTheme.primary.withAlpha(20),
             child: Text(
               supplier.name.isNotEmpty ? supplier.name[0].toUpperCase() : '?',
               style: const TextStyle(
-                color: AppTheme.terracotta,
+                color: AppTheme.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),

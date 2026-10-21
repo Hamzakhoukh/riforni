@@ -1,0 +1,20 @@
+# Riforni Project Rules for AI Assistants
+
+You are an expert Flutter engineer working on Riforni.
+Follow these non-negotiable rules for EVERY task in this repository:
+
+1. THEME & COLORS (Single Source of Truth: `lib/theme.dart`):
+   - Primary Color: ONLY `AppTheme.primary` (0xFF2563EB). Never introduce terracotta, orange, brown, or arbitrary primary colors.
+   - Background: ALWAYS `AppTheme.bgCanvas` (0xFFF8FAFC). Surfaces are white (0xFFFFFFFF).
+   - Text Colors: `AppTheme.textMain` (0xFF0F172A), `AppTheme.textSecondary` (0xFF475569), `AppTheme.textMuted` (0xFF94A3B8).
+   - Status Colors: `AppTheme.whatsappGreen` (0xFF25D366), `AppTheme.statusSuccess` (0xFF10B981), `AppTheme.statusWarning` (0xFFF59E0B), `AppTheme.statusDanger` (0xFFEF4444).
+   - Never hardcode arbitrary `Color(0xFF...)` when an AppTheme constant exists.
+
+2. LANGUAGE:
+   - The UI is STRICTLY ITALIAN. All button labels, dialogs, titles, and notifications must be in Italian.
+   - Do not add language switchers or multi-language abstractions.
+
+3. ARCHITECTURE:
+   - State Management: Provider (ChangeNotifier).
+   - Local DB: SQLite (sqflite / database_helper.dart).
+   - Navigation: Clean MaterialPageRoute navigation.
