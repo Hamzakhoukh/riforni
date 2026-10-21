@@ -1,0 +1,66 @@
+name: riforni
+description: Riforni - Gestione ordini fornitore. Restaurant supplier order management app.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management — detected from main.dart (MultiProvider, ChangeNotifierProvider)
+  provider: ^6.1.2
+
+  # SQLite database — detected from database_helper.dart
+  sqflite: ^2.3.3
+  sqflite_common_ffi: ^2.3.4
+  path: ^1.9.0
+
+  # Local settings — detected from restaurant_provider.dart
+  shared_preferences: ^2.2.2
+
+  # File system path — detected from backup_helper.dart
+  path_provider: ^2.1.3
+
+  # File picker — detected from backup_helper.dart + excel_helper.dart
+  file_picker: ^8.0.3
+
+  # Image picker — detected from onboarding_screen.dart + settings_screen.dart
+  image_picker: ^1.0.7
+
+  # URL launcher (WhatsApp + email) — detected from whatsapp_helper.dart
+  url_launcher: ^6.2.4
+
+  # Permission handler — detected from backup_helper.dart + excel_helper.dart
+  permission_handler: ^11.3.0
+
+  # Excel import/export — detected from excel_helper.dart
+  excel: ^4.0.2
+
+  # Slidable list tiles — detected from history_screen + products_screen + categorie_screen
+  flutter_slidable: ^3.1.0
+
+  # Google Fonts (Plus Jakarta Sans, Nunito) — detected from theme.dart + main.dart
+  google_fonts: ^6.2.1
+
+
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/logo.png
+    - assets/images/logo_icon.png
+    - assets/images/
+
+  fonts:
+    - family: MaterialIcons
+      fonts:
+        - asset: assets/fonts/MaterialIcons-Regular.otf
