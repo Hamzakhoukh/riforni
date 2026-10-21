@@ -523,7 +523,7 @@ class _CartScreenState extends State<CartScreen> {
                     Text(
                       missingSupplierCount > 0
                           ? 'Correggi fornitori ($missingSupplierCount)'
-                          : (groupCount > 1 ? 'Prepara $groupCount ordini' : 'Invia ordine'),
+                          : (groupCount > 1 ? 'Procedi ($groupCount fornitori)' : 'Procedi all\'invio'),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
                     ),
                   ],

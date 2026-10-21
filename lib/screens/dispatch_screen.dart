@@ -660,10 +660,11 @@ class _DispatchScreenState extends State<DispatchScreen> with WidgetsBindingObse
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Messaggio copiato negli appunti (salvato come bozza)'),
+                          content: Text('Messaggio copiato — confermalo dopo averlo inviato'),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
+                      setState(() => _inlineConfirmationMode = true);
                     }
                   },
                   icon: const Icon(Icons.copy_rounded, size: 15, color: Color(0xFF64748B)),
@@ -680,6 +681,10 @@ class _DispatchScreenState extends State<DispatchScreen> with WidgetsBindingObse
                         subject: 'Ordine da ${context.read<RestaurantProvider>().name}',
                         body: message,
                       );
+                      if (mounted) {
+                        // Same lifecycle pattern as WhatsApp: on resume → show confirmation
+                        setState(() => _waitingConfirmation = true);
+                      }
                     },
                     icon: const Icon(Icons.mail_outline_rounded, size: 15, color: Color(0xFF64748B)),
                     label: const Text('Invia email', style: TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w600)),
