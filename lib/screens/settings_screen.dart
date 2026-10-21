@@ -16,17 +16,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameCtrl;
+  final _nameCtrl = TextEditingController();
   String? _logoPath;
   bool _saving = false;
+  bool _editingName = false;
 
   @override
   void initState() {
     super.initState();
     final rp = context.read<RestaurantProvider>();
-    _nameCtrl =
-        TextEditingController(text: rp.name == 'Riforni' ? '' : rp.name);
+    _nameCtrl.text = rp.name == 'Riforni' ? '' : rp.name;
     _logoPath = rp.logoPath;
   }
 
@@ -37,199 +36,371 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _pickLogo() async {
-    final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.gallery);
+    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file != null && mounted) setState(() => _logoPath = file.path);
   }
 
-  void _removeLogo() => setState(() => _logoPath = null);
-
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) return;
     setState(() => _saving = true);
-    await context
-        .read<RestaurantProvider>()
-        .save(_nameCtrl.text.trim(), _logoPath);
+    await context.read<RestaurantProvider>().save(name, _logoPath);
     if (!mounted) return;
-    setState(() => _saving = false);
+    setState(() {
+      _saving = false;
+      _editingName = false;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Impostazioni salvate!'),
-        duration: Duration(seconds: 2),
+        content: Text('Salvato ✓'),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Color(0xFF16A34A),
       ),
     );
-    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final rp = context.watch<RestaurantProvider>();
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Impostazioni ristorante'),
+        backgroundColor: const Color(0xFFF8FAFC),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          'Impostazioni',
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
+        ),
         leading: const BackButton(),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Logo ──
-              const Text('Logo ristorante',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 16)),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: _pickLogo,
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppTheme.terracotta.withAlpha(20),
-                        border: Border.all(
-                            color: AppTheme.terracotta.withAlpha(60),
-                            width: 2),
-                      ),
-                      child: _logoPath != null
-                          ? ClipOval(
-                              child: Image.file(
-                                File(_logoPath!),
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : const Icon(Icons.restaurant,
-                              size: 36, color: AppTheme.terracotta),
-                    ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+        children: [
+
+          // ── Profilo ristorante ──
+          _sectionLabel('Ristorante'),
+          _buildProfileCard(rp),
+          const SizedBox(height: 28),
+
+          // ── Catalogo ──
+          _sectionLabel('Catalogo'),
+          _buildCard([
+            _tile(
+              icon: Icons.category_outlined,
+              iconColor: const Color(0xFF7C3AED),
+              iconBg: const Color(0xFFF3E8FF),
+              title: 'Gestisci categorie',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CategorieScreen()),
+              ),
+            ),
+            _divider(),
+            _tile(
+              icon: Icons.table_chart_outlined,
+              iconColor: const Color(0xFF059669),
+              iconBg: const Color(0xFFD1FAE5),
+              title: 'Importa prodotti (Excel)',
+              onTap: () => ExcelHelper.importFromExcel(context),
+            ),
+            _divider(),
+            _tile(
+              icon: Icons.table_chart_rounded,
+              iconColor: const Color(0xFF2563EB),
+              iconBg: const Color(0xFFDBEAFE),
+              title: 'Esporta prodotti (Excel)',
+              onTap: () => ExcelHelper.exportToExcel(context),
+            ),
+          ]),
+          const SizedBox(height: 28),
+
+          // ── Dati & Backup ──
+          _sectionLabel('Dati e backup'),
+          _buildCard([
+            _tile(
+              icon: Icons.upload_rounded,
+              iconColor: const Color(0xFFD97706),
+              iconBg: const Color(0xFFFEF3C7),
+              title: 'Esporta backup',
+              onTap: () => BackupHelper.exportBackup(context),
+            ),
+            _divider(),
+            _tile(
+              icon: Icons.download_rounded,
+              iconColor: const Color(0xFF0891B2),
+              iconBg: const Color(0xFFCFFAFE),
+              title: 'Importa backup',
+              onTap: () => BackupHelper.importBackup(context),
+            ),
+          ]),
+          const SizedBox(height: 28),
+
+          // ── Info app ──
+          _sectionLabel('Informazioni'),
+          _buildCard([
+            _tile(
+              icon: Icons.info_outline_rounded,
+              iconColor: const Color(0xFF64748B),
+              iconBg: const Color(0xFFF1F5F9),
+              title: 'Riforni',
+              subtitle: 'Versione 1.0.0 — Gestione ordini fornitore',
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  // ─── Profile card ────────────────────────────────────────────────────────
+  Widget _buildProfileCard(RestaurantProvider rp) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: AppTheme.cardShadow,
+      ),
+      child: Column(
+        children: [
+          // Avatar con pulsante camera
+          GestureDetector(
+            onTap: _pickLogo,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.primary.withAlpha(18),
+                    border: Border.all(
+                        color: AppTheme.primary.withAlpha(40), width: 2),
                   ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextButton.icon(
-                        onPressed: _pickLogo,
-                        icon: const Icon(Icons.camera_alt),
-                        label: const Text('Cambia logo'),
-                      ),
-                      if (_logoPath != null)
-                        TextButton.icon(
-                          onPressed: _removeLogo,
-                          icon: const Icon(Icons.delete_outline,
-                              color: Colors.red),
-                          label: const Text('Rimuovi logo',
-                              style: TextStyle(color: Colors.red)),
+                  child: _logoPath != null
+                      ? ClipOval(
+                          child: Image.file(File(_logoPath!), fit: BoxFit.cover),
+                        )
+                      : Center(
+                          child: Text(
+                            rp.name.isNotEmpty
+                                ? rp.name[0].toUpperCase()
+                                : 'R',
+                            style: TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.primary,
+                            ),
+                          ),
                         ),
-                    ],
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2.5),
+                    ),
+                    child: const Icon(Icons.camera_alt_rounded,
+                        size: 13, color: Colors.white),
                   ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Nome — visualizza o modifica
+          if (!_editingName)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    rp.name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () => setState(() => _editingName = true),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.edit_rounded,
+                        size: 14, color: Color(0xFF64748B)),
+                  ),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _nameCtrl,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'es. Ristorante Da Mario',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: AppTheme.primary, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      isDense: true,
+                    ),
+                    onSubmitted: (_) => _save(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: _saving ? null : _save,
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: _saving
+                        ? const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.check_rounded,
+                            color: Colors.white, size: 22),
+                  ),
+                ),
+              ],
+            ),
+
+          // Rimuovi logo
+          if (_logoPath != null) ...[
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () async {
+                setState(() => _logoPath = null);
+                await context.read<RestaurantProvider>().removeLogo();
+              },
+              icon: const Icon(Icons.delete_outline_rounded,
+                  size: 15, color: Color(0xFFEF4444)),
+              label: const Text(
+                'Rimuovi foto',
+                style: TextStyle(
+                    color: Color(0xFFEF4444),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600),
+              ),
+              style:
+                  TextButton.styleFrom(visualDensity: VisualDensity.compact),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ─── Helpers ─────────────────────────────────────────────────────────────
+  Widget _sectionLabel(String label) => Padding(
+        padding: const EdgeInsets.only(left: 4, bottom: 8),
+        child: Text(
+          label.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF94A3B8),
+            letterSpacing: 1.0,
+          ),
+        ),
+      );
+
+  Widget _buildCard(List<Widget> children) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: AppTheme.cardShadow,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: children),
+      );
+
+  Widget _divider() => const Divider(
+      height: 1, indent: 56, endIndent: 0, color: Color(0xFFF1F5F9));
+
+  Widget _tile({
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBg,
+    required String title,
+    String? subtitle,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                  color: iconBg, borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, size: 18, color: iconColor),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Color(0xFF0F172A)),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: const TextStyle(
+                            fontSize: 12, color: Color(0xFF64748B))),
+                  ],
                 ],
               ),
-              const SizedBox(height: 24),
-              // ── Name ──
-              const Text('Nome del ristorante',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 16)),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: InputDecoration(
-                  hintText: 'es. Ristorante Da Mario',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: AppTheme.terracotta, width: 2),
-                  ),
-                ),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Inserisci il nome'
-                    : null,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saving ? null : _save,
-                  child: _saving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
-                      : const Text('Salva impostazioni'),
-                ),
-              ),
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 16),
-              // ── Backup ──
-              const Text('Dati e backup',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 16)),
-              const SizedBox(height: 12),
-              ListTile(
-                leading: const Icon(Icons.upload),
-                title: const Text('Esporta dati'),
-                onTap: () => BackupHelper.exportBackup(context),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                tileColor: Colors.white,
-              ),
-              const SizedBox(height: 8),
-              ListTile(
-                leading: const Icon(Icons.download),
-                title: const Text('Importa dati'),
-                onTap: () => BackupHelper.importBackup(context),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                tileColor: Colors.white,
-              ),
-              const SizedBox(height: 24),
-              // ── Categories ──
-              const Text('Categorie',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 16)),
-              const SizedBox(height: 12),
-              ListTile(
-                leading: const Icon(Icons.category_outlined),
-                title: const Text('Gestisci categorie'),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const CategorieScreen()),
-                ),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                tileColor: Colors.white,
-              ),
-              const SizedBox(height: 24),
-              // ── Excel ──
-              const Text('Importa / Esporta prodotti',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700, fontSize: 16)),
-              const SizedBox(height: 12),
-              ListTile(
-                leading: const Icon(Icons.table_chart_outlined),
-                title: const Text('Importa prodotti (Excel)'),
-                onTap: () => ExcelHelper.importFromExcel(context),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                tileColor: Colors.white,
-              ),
-              const SizedBox(height: 8),
-              ListTile(
-                leading: const Icon(Icons.table_chart),
-                title: const Text('Esporta prodotti (Excel)'),
-                onTap: () => ExcelHelper.exportToExcel(context),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                tileColor: Colors.white,
-              ),
-            ],
-          ),
+            ),
+            if (onTap != null)
+              const Icon(Icons.chevron_right_rounded,
+                  color: Color(0xFFCBD5E1), size: 20),
+          ],
         ),
       ),
     );
