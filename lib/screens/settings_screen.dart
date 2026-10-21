@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/restaurant_provider.dart';
 import '../utils/backup_helper.dart';
-import '../utils/excel_helper.dart';
 import '../theme.dart';
 import 'categorie_screen.dart';
 
@@ -96,22 +95,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
                 MaterialPageRoute(builder: (_) => const CategorieScreen()),
               ),
-            ),
-            _divider(),
-            _tile(
-              icon: Icons.table_chart_outlined,
-              iconColor: const Color(0xFF059669),
-              iconBg: const Color(0xFFD1FAE5),
-              title: 'Importa prodotti (Excel)',
-              onTap: () => ExcelHelper.importFromExcel(context),
-            ),
-            _divider(),
-            _tile(
-              icon: Icons.table_chart_rounded,
-              iconColor: const Color(0xFF2563EB),
-              iconBg: const Color(0xFFDBEAFE),
-              title: 'Esporta prodotti (Excel)',
-              onTap: () => ExcelHelper.exportToExcel(context),
             ),
           ]),
           const SizedBox(height: 28),
