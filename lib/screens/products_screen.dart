@@ -321,6 +321,21 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ),
         ),
       ),
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 76),
+        child: FloatingActionButton.extended(
+          onPressed: () => _showProductDialog(context, null),
+          backgroundColor: AppTheme.primary,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          icon: const Icon(Icons.add_rounded, size: 22),
+          label: const Text(
+            'Nuovo prodotto',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      ),
     );
   }
 
