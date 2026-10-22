@@ -321,28 +321,33 @@ class _DispatchScreenState extends State<DispatchScreen> with WidgetsBindingObse
         ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header: "Fornitore X di N" + thin progress bar (hidden if N == 1)
-            if (_totalGroups > 1) _buildMultiHeader(),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 820),
+            child: Column(
+              children: [
+                // Header: "Fornitore X di N" + thin progress bar (hidden if N == 1)
+                if (_totalGroups > 1) _buildMultiHeader(),
 
-            // Main scrollable content (avoids any overflow on 360x640)
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSupplierCard(),
-                    _buildCollapsedMessagePreview(),
-                  ],
+                // Main scrollable content (avoids any overflow on 360x640)
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSupplierCard(),
+                        _buildCollapsedMessagePreview(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
 
-            // Bottom action area (fixed at bottom, safe from overflow)
-            _buildBottomActionBar(),
-          ],
+                // Bottom action area (fixed at bottom, safe from overflow)
+                _buildBottomActionBar(),
+              ],
+            ),
+          ),
         ),
       ),
     );

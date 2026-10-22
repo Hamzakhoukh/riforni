@@ -248,8 +248,33 @@ class _CategorieScreenState extends State<CategorieScreen> {
           ),
         ),
         leading: const BackButton(color: AppTheme.textMain),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ElevatedButton.icon(
+              onPressed: () => _showCategoryDialog(context),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text(
+                'Nuova categoria',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              ),
+            ),
+          ),
+        ],
       ),
-      body: categories.isEmpty
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: categories.isEmpty
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -412,13 +437,7 @@ class _CategorieScreenState extends State<CategorieScreen> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCategoryDialog(context),
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add_rounded, size: 28),
+        ),
       ),
     );
   }

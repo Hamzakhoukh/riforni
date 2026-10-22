@@ -10,115 +10,318 @@ import '../providers/suppliers_provider.dart';
 import '../providers/categorie_provider.dart';
 import '../theme.dart';
 
-class ProductsScreen extends StatelessWidget {
+class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
 
   @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _query = '';
+  int? _selectedCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl.addListener(() {
+      setState(() => _query = _searchCtrl.text.trim().toLowerCase());
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final products = context.watch<ProductsProvider>().products;
+    final allProducts = context.watch<ProductsProvider>().products;
+    final categories = context.watch<CategorieProvider>().categories;
+
+    final products = allProducts.where((p) {
+      final matchesQuery = _query.isEmpty ||
+          p.name.toLowerCase().contains(_query) ||
+          (p.notes ?? '').toLowerCase().contains(_query);
+      final matchesCat =
+          _selectedCategoryId == null || p.categoriaId == _selectedCategoryId;
+      return matchesQuery && matchesCat;
+    }).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.bgCanvas,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: AppTheme.bgCanvas,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
-          'Prodotti',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 20,
-            color: AppTheme.textMain,
-          ),
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Prodotti',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 22,
+                letterSpacing: -0.5,
+                color: AppTheme.textMain,
+              ),
+            ),
+            Text(
+              '${allProducts.length} ${allProducts.length == 1 ? 'prodotto a catalogo' : 'prodotti a catalogo'}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ],
         ),
-        leading: const BackButton(color: AppTheme.textMain),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ElevatedButton.icon(
+              onPressed: () => _showProductDialog(context, null),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text(
+                'Nuovo prodotto',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              ),
+            ),
+          ),
+        ],
       ),
-      body: products.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 76,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFDBEAFE)),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.inventory_2_outlined,
-                          size: 38,
-                          color: AppTheme.primary,
-                        ),
-                      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: Column(
+            children: [
+              // ── Search bar ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                child: Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: AppTheme.cardShadow,
+                  ),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    decoration: InputDecoration(
+                      hintText: 'Cerca per nome, marca o note...',
+                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                      prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 20),
+                      suffixIcon: _query.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () => _searchCtrl.clear(),
+                              child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF94A3B8)),
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Nessun prodotto ancora',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textMain,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Aggiungi i tuoi ingredienti e articoli per gestire gli ordini ai fornitori.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textSecondary,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () => _showAddProductDialog(context),
-                      icon: const Icon(Icons.add_rounded, size: 20),
-                      label: const Text(
-                        'Aggiungi prodotto',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return _ProductTile(product: product);
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddProductDialog(context),
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add_rounded, size: 28),
+
+              // ── Category filter pills ──
+              if (categories.isNotEmpty)
+                SizedBox(
+                  height: 42,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    itemCount: categories.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        final isSelected = _selectedCategoryId == null;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: const Text('Tutti'),
+                            selected: isSelected,
+                            onSelected: (_) =>
+                                setState(() => _selectedCategoryId = null),
+                            selectedColor: const Color(0xFFEFF6FF),
+                            labelStyle: TextStyle(
+                              color: isSelected ? AppTheme.primary : const Color(0xFF475569),
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                            side: BorderSide(
+                              color: isSelected ? AppTheme.primary : const Color(0xFFE2E8F0),
+                              width: 1.2,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            backgroundColor: Colors.white,
+                            showCheckmark: false,
+                          ),
+                        );
+                      }
+                      final cat = categories[index - 1];
+                      final isSelected = _selectedCategoryId == cat.id;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          label: Text('${cat.emoji ?? '📁'} ${cat.nome}'),
+                          selected: isSelected,
+                          onSelected: (_) => setState(() {
+                            _selectedCategoryId = isSelected ? null : cat.id;
+                          }),
+                          selectedColor: const Color(0xFFEFF6FF),
+                          labelStyle: TextStyle(
+                            color: isSelected ? AppTheme.primary : const Color(0xFF475569),
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                          side: BorderSide(
+                            color: isSelected ? AppTheme.primary : const Color(0xFFE2E8F0),
+                            width: 1.2,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          backgroundColor: Colors.white,
+                          showCheckmark: false,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+              const SizedBox(height: 4),
+
+              // ── List of Products or Empty State ──
+              Expanded(
+                child: allProducts.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 76,
+                                height: 76,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: const Color(0xFFDBEAFE)),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 38,
+                                    color: AppTheme.primary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Nessun prodotto ancora',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.textMain,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Aggiungi i tuoi ingredienti e articoli per gestire gli ordini ai fornitori.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppTheme.textSecondary,
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton.icon(
+                                onPressed: () => _showProductDialog(context, null),
+                                icon: const Icon(Icons.add_rounded, size: 20),
+                                label: const Text(
+                                  'Aggiungi prodotto',
+                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : products.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.search_off_rounded, size: 54, color: Color(0xFF94A3B8)),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Nessun prodotto trovato',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.textMain,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextButton(
+                                    onPressed: () {
+                                      _searchCtrl.clear();
+                                      setState(() => _selectedCategoryId = null);
+                                    },
+                                    child: const Text('Reimposta filtri'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+                            itemCount: products.length,
+                            itemBuilder: (context, index) {
+                              final product = products[index];
+                              return _ProductTile(
+                                product: product,
+                                onEdit: () => _showProductDialog(context, product),
+                              );
+                            },
+                          ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
-  }
-
-  void _showAddProductDialog(BuildContext context) {
-    _showProductDialog(context, null);
   }
 
   static void _showProductDialog(BuildContext context, Product? existing) {
@@ -413,7 +616,12 @@ class ProductsScreen extends StatelessWidget {
 
 class _ProductTile extends StatelessWidget {
   final Product product;
-  const _ProductTile({required this.product});
+  final VoidCallback onEdit;
+
+  const _ProductTile({
+    required this.product,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -424,7 +632,7 @@ class _ProductTile extends StatelessWidget {
           motion: const DrawerMotion(),
           children: [
             SlidableAction(
-              onPressed: (_) => ProductsScreen._showProductDialog(context, product),
+              onPressed: (_) => onEdit(),
               backgroundColor: AppTheme.primary,
               foregroundColor: Colors.white,
               icon: Icons.edit_rounded,
@@ -487,7 +695,7 @@ class _ProductTile extends StatelessWidget {
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               child: (!kIsWeb && product.imagePath != null && File(product.imagePath!).existsSync())
                   ? Image.file(
                       File(product.imagePath!),
@@ -563,7 +771,7 @@ class _ProductTile extends StatelessWidget {
               Icons.chevron_right_rounded,
               color: AppTheme.textMuted,
             ),
-            onTap: () => ProductsScreen._showProductDialog(context, product),
+            onTap: onEdit,
           ),
         ),
       ),

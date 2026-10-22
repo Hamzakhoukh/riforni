@@ -106,17 +106,20 @@ class _MainShellState extends State<MainShell> {
       extendBody: true,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-          height: 64,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
-            boxShadow: AppTheme.floatingShadow,
-          ),
-          child: Row(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 520),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+            height: 64,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+              boxShadow: AppTheme.floatingShadow,
+            ),
+            child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _NavDockItem(
@@ -151,6 +154,7 @@ class _MainShellState extends State<MainShell> {
           ),
         ),
       ),
+    ),
     );
   }
 }

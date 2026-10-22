@@ -74,64 +74,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         leading: const BackButton(),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-        children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+            children: [
 
-          // ── Profilo ristorante ──
-          _sectionLabel('Ristorante'),
-          _buildProfileCard(rp),
-          const SizedBox(height: 28),
+              // ── Profilo ristorante ──
+              _sectionLabel('Ristorante'),
+              _buildProfileCard(rp),
+              const SizedBox(height: 28),
 
-          // ── Catalogo ──
-          _sectionLabel('Catalogo'),
-          _buildCard([
-            _tile(
-              icon: Icons.category_outlined,
-              iconColor: const Color(0xFF7C3AED),
-              iconBg: const Color(0xFFF3E8FF),
-              title: 'Gestisci categorie',
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CategorieScreen()),
-              ),
-            ),
-          ]),
-          const SizedBox(height: 28),
+              // ── Catalogo ──
+              _sectionLabel('Catalogo'),
+              _buildCard([
+                _tile(
+                  icon: Icons.category_outlined,
+                  iconColor: const Color(0xFF7C3AED),
+                  iconBg: const Color(0xFFF3E8FF),
+                  title: 'Gestisci categorie',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CategorieScreen()),
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 28),
 
-          // ── Dati & Backup ──
-          _sectionLabel('Dati e backup'),
-          _buildCard([
-            _tile(
-              icon: Icons.upload_rounded,
-              iconColor: const Color(0xFFD97706),
-              iconBg: const Color(0xFFFEF3C7),
-              title: 'Esporta backup',
-              onTap: () => BackupHelper.exportBackup(context),
-            ),
-            _divider(),
-            _tile(
-              icon: Icons.download_rounded,
-              iconColor: const Color(0xFF0891B2),
-              iconBg: const Color(0xFFCFFAFE),
-              title: 'Importa backup',
-              onTap: () => BackupHelper.importBackup(context),
-            ),
-          ]),
-          const SizedBox(height: 28),
+              // ── Dati & Backup ──
+              _sectionLabel('Dati e backup'),
+              _buildCard([
+                _tile(
+                  icon: Icons.upload_rounded,
+                  iconColor: const Color(0xFFD97706),
+                  iconBg: const Color(0xFFFEF3C7),
+                  title: 'Esporta backup',
+                  onTap: () => BackupHelper.exportBackup(context),
+                ),
+                _divider(),
+                _tile(
+                  icon: Icons.download_rounded,
+                  iconColor: const Color(0xFF0891B2),
+                  iconBg: const Color(0xFFCFFAFE),
+                  title: 'Importa backup',
+                  onTap: () => BackupHelper.importBackup(context),
+                ),
+              ]),
+              const SizedBox(height: 28),
 
-          // ── Info app ──
-          _sectionLabel('Informazioni'),
-          _buildCard([
-            _tile(
-              icon: Icons.info_outline_rounded,
-              iconColor: const Color(0xFF64748B),
-              iconBg: const Color(0xFFF1F5F9),
-              title: 'Riforni',
-              subtitle: 'Versione 1.0.0 — Gestione ordini fornitore',
-            ),
-          ]),
-        ],
+              // ── Info app ──
+              _sectionLabel('Informazioni'),
+              _buildCard([
+                _tile(
+                  icon: Icons.info_outline_rounded,
+                  iconColor: const Color(0xFF64748B),
+                  iconBg: const Color(0xFFF1F5F9),
+                  title: 'Riforni',
+                  subtitle: 'Versione 1.0.0 — Gestione ordini fornitore',
+                ),
+              ]),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -379,11 +379,16 @@ class _CartScreenState extends State<CartScreen> {
           ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
           : cartItems.isEmpty
               ? _buildEmpty()
-              : Column(
-                  children: [
-                    Expanded(child: _buildItemList(cart, cartItems)),
-                    _buildFooter(cartItems),
-                  ],
+              : Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 820),
+                    child: Column(
+                      children: [
+                        Expanded(child: _buildItemList(cart, cartItems)),
+                        _buildFooter(cartItems),
+                      ],
+                    ),
+                  ),
                 ),
     );
   }

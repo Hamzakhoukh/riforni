@@ -18,7 +18,7 @@ class SupplierCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      margin: const EdgeInsets.symmetric(vertical: 5),
       child: Slidable(
         endActionPane: ActionPane(
           motion: const DrawerMotion(),
@@ -49,13 +49,13 @@ class SupplierCard extends StatelessWidget {
             boxShadow: AppTheme.cardShadow,
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: Container(
-              width: 44,
-              height: 44,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
                 color: const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Center(
                 child: Text(
@@ -77,44 +77,83 @@ class SupplierCard extends StatelessWidget {
               ),
             ),
             subtitle: Padding(
-              padding: const EdgeInsets.only(top: 3),
+              padding: const EdgeInsets.only(top: 6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
                     children: [
-                      const Icon(Icons.phone_outlined, size: 13, color: AppTheme.textMuted),
-                      const SizedBox(width: 4),
-                      Text(
-                        supplier.whatsapp,
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      // WhatsApp pill
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F5E9),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.chat_bubble_rounded, size: 12, color: Color(0xFF16A34A)),
+                            const SizedBox(width: 4),
+                            Text(
+                              supplier.whatsapp,
+                              style: const TextStyle(
+                                color: Color(0xFF15803D),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                  if (supplier.email != null && supplier.email!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Icon(Icons.mail_outline_rounded, size: 13, color: AppTheme.textMuted),
-                        const SizedBox(width: 4),
-                        Text(
-                          supplier.email!,
-                          style: const TextStyle(
-                            color: AppTheme.textMuted,
-                            fontSize: 11,
+                      // Email pill
+                      if (supplier.email != null && supplier.email!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.mail_outline_rounded, size: 12, color: Color(0xFF64748B)),
+                              const SizedBox(width: 4),
+                              Text(
+                                supplier.email!,
+                                style: const TextStyle(
+                                  color: Color(0xFF475569),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                    ],
+                  ),
+                  if (supplier.notes != null && supplier.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      supplier.notes!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppTheme.textMuted,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                 ],
               ),
             ),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted),
+            trailing: const Icon(
+              Icons.chevron_right_rounded,
+              color: AppTheme.textMuted,
+            ),
             onTap: onEdit,
           ),
         ),

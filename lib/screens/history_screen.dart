@@ -156,30 +156,71 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.bgCanvas,
-      appBar: AppBar(title: const Text('Cronologia', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20))),
-      body: history.isEmpty
-          ? const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.history_rounded, size: 64, color: Color(0xFF94A3B8)),
-                    SizedBox(height: 16),
-                    Text(
-                      'Nessun ordine ancora',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF0F172A),
-                      ),
-                    ),
-                  ],
-                ),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: AppTheme.bgCanvas,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Storico Ordini',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 22,
+                letterSpacing: -0.5,
+                color: AppTheme.textMain,
               ),
-            )
-          : ListView(
-              children: [
+            ),
+            Text(
+              '${history.orders.length} ${history.orders.length == 1 ? 'ordine registrato' : 'ordini registrati'}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: history.isEmpty
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.history_rounded, size: 64, color: Color(0xFF94A3B8)),
+                        SizedBox(height: 16),
+                        Text(
+                          'Nessun ordine ancora',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                        SizedBox(height: 6),
+                        Text(
+                          'Gli ordini inviati o salvati come bozza appariranno qui.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 96),
+                  children: [
                 for (final entry in grouped.entries) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -210,6 +251,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ],
               ],
             ),
+        ),
+      ),
     );
   }
 }

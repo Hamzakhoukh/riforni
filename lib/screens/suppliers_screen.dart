@@ -6,113 +6,245 @@ import '../providers/suppliers_provider.dart';
 import '../widgets/supplier_card.dart';
 import '../theme.dart';
 
-class SuppliersScreen extends StatelessWidget {
+class SuppliersScreen extends StatefulWidget {
   const SuppliersScreen({super.key});
 
   @override
+  State<SuppliersScreen> createState() => _SuppliersScreenState();
+}
+
+class _SuppliersScreenState extends State<SuppliersScreen> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl.addListener(() {
+      setState(() => _query = _searchCtrl.text.trim().toLowerCase());
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final suppliers = context.watch<SuppliersProvider>().suppliers;
+    final allSuppliers = context.watch<SuppliersProvider>().suppliers;
+    final suppliers = allSuppliers.where((s) {
+      if (_query.isEmpty) return true;
+      final name = s.name.toLowerCase();
+      final wa = s.whatsapp.toLowerCase();
+      final email = (s.email ?? '').toLowerCase();
+      final notes = (s.notes ?? '').toLowerCase();
+      return name.contains(_query) ||
+          wa.contains(_query) ||
+          email.contains(_query) ||
+          notes.contains(_query);
+    }).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.bgCanvas,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: AppTheme.bgCanvas,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
-          'Fornitori',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 20,
-            color: AppTheme.textMain,
-          ),
+        titleSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Fornitori',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 22,
+                letterSpacing: -0.5,
+                color: AppTheme.textMain,
+              ),
+            ),
+            Text(
+              '${allSuppliers.length} ${allSuppliers.length == 1 ? 'fornitore registrato' : 'fornitori registrati'}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
+              ),
+            ),
+          ],
         ),
-        leading: const BackButton(color: AppTheme.textMain),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ElevatedButton.icon(
+              onPressed: () => _showAddDialog(context),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: const Text(
+                'Nuovo fornitore',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              ),
+            ),
+          ),
+        ],
       ),
-      body: suppliers.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 76,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFDBEAFE)),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.people_outline_rounded,
-                          size: 38,
-                          color: AppTheme.primary,
-                        ),
-                      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: Column(
+            children: [
+              // ── Search bar ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: AppTheme.cardShadow,
+                  ),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    decoration: InputDecoration(
+                      hintText: 'Cerca per nome, WhatsApp o email...',
+                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                      prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 20),
+                      suffixIcon: _query.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () => _searchCtrl.clear(),
+                              child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF94A3B8)),
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Nessun fornitore ancora',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textMain,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Aggiungi i tuoi fornitori con il loro numero WhatsApp per inviare gli ordini direttamente.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textSecondary,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () => _showAddDialog(context),
-                      icon: const Icon(Icons.add_rounded, size: 20),
-                      label: const Text(
-                        'Aggiungi fornitore',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
-              itemCount: suppliers.length,
-              itemBuilder: (context, index) {
-                final supplier = suppliers[index];
-                return SupplierCard(
-                  supplier: supplier,
-                  onEdit: () => _showEditDialog(context, supplier),
-                  onDelete: () => _confirmDelete(context, supplier),
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddDialog(context),
-        backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add_rounded, size: 28),
+
+              // ── List of Suppliers or Empty State ──
+              Expanded(
+                child: allSuppliers.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 76,
+                                height: 76,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: const Color(0xFFDBEAFE)),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.people_outline_rounded,
+                                    size: 38,
+                                    color: AppTheme.primary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Nessun fornitore ancora',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.textMain,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Aggiungi i tuoi fornitori con il loro numero WhatsApp per inviare gli ordini direttamente.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppTheme.textSecondary,
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton.icon(
+                                onPressed: () => _showAddDialog(context),
+                                icon: const Icon(Icons.add_rounded, size: 20),
+                                label: const Text(
+                                  'Aggiungi fornitore',
+                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : suppliers.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.search_off_rounded, size: 54, color: Color(0xFF94A3B8)),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Nessun fornitore trovato per "$_query"',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.textMain,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextButton(
+                                    onPressed: () => _searchCtrl.clear(),
+                                    child: const Text('Reimposta ricerca'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+                            itemCount: suppliers.length,
+                            itemBuilder: (context, index) {
+                              final supplier = suppliers[index];
+                              return SupplierCard(
+                                supplier: supplier,
+                                onEdit: () => _showEditDialog(context, supplier),
+                                onDelete: () => _confirmDelete(context, supplier),
+                              );
+                            },
+                          ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

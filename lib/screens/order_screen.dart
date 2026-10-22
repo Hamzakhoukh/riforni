@@ -211,7 +211,10 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
         ],
       ),
-      body: Stack(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: Stack(
         children: [
           Column(
             children: [
@@ -394,6 +397,8 @@ class _OrderScreenState extends State<OrderScreen> {
             ),
         ],
       ),
+          ),
+        ),
     );
   }
 }
