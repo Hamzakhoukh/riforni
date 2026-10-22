@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/supplier.dart';
 import '../providers/suppliers_provider.dart';
 import '../widgets/supplier_card.dart';
+import '../theme.dart';
 
 class SuppliersScreen extends StatelessWidget {
   const SuppliersScreen({super.key});
@@ -13,34 +14,88 @@ class SuppliersScreen extends StatelessWidget {
     final suppliers = context.watch<SuppliersProvider>().suppliers;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Fornitori')),
+      backgroundColor: AppTheme.bgCanvas,
+      appBar: AppBar(
+        backgroundColor: AppTheme.bgCanvas,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: const Text(
+          'Fornitori',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+            color: AppTheme.textMain,
+          ),
+        ),
+        leading: const BackButton(color: AppTheme.textMain),
+      ),
       body: suppliers.isEmpty
-          ? const Center(
+          ? Center(
               child: Padding(
-                padding: EdgeInsets.all(32),
+                padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.people_outline, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text(
+                    Container(
+                      width: 76,
+                      height: 76,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFDBEAFE)),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.people_outline_rounded,
+                          size: 38,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
                       'Nessun fornitore ancora',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.textMain,
+                        letterSpacing: -0.3,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'aggiungine uno per iniziare',
-                      style: TextStyle(color: Colors.grey),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Aggiungi i tuoi fornitori con il loro numero WhatsApp per inviare gli ordini direttamente.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => _showAddDialog(context),
+                      icon: const Icon(Icons.add_rounded, size: 20),
+                      label: const Text(
+                        'Aggiungi fornitore',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
                     ),
                   ],
                 ),
               ),
             )
           : ListView.builder(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 96),
               itemCount: suppliers.length,
               itemBuilder: (context, index) {
                 final supplier = suppliers[index];
@@ -53,7 +108,11 @@ class SuppliersScreen extends StatelessWidget {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDialog(context),
-        child: const Icon(Icons.add),
+        backgroundColor: AppTheme.primary,
+        foregroundColor: Colors.white,
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add_rounded, size: 28),
       ),
     );
   }
@@ -78,84 +137,184 @@ class SuppliersScreen extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(
-            24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                existing == null ? 'Nuovo fornitore' : 'Modifica fornitore',
-                style: const TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Nome *'),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Inserisci il nome' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: waCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'WhatsApp * (+39...)'),
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+]'))
-                ],
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Inserisci il numero' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: emailCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Email (opzionale)'),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: notesCtrl,
-                decoration: const InputDecoration(labelText: 'Note'),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (!formKey.currentState!.validate()) return;
-                    final supplier = Supplier(
-                      id: existing?.id,
-                      name: nameCtrl.text.trim(),
-                      whatsapp: waCtrl.text.trim(),
-                      email: emailCtrl.text.trim().isEmpty
-                          ? null
-                          : emailCtrl.text.trim(),
-                      notes: notesCtrl.text.trim().isEmpty
-                          ? null
-                          : notesCtrl.text.trim(),
-                    );
-                    if (existing == null) {
-                      await ctx.read<SuppliersProvider>().addSupplier(supplier);
-                    } else {
-                      await ctx
-                          .read<SuppliersProvider>()
-                          .updateSupplier(supplier);
-                    }
-                    if (ctx.mounted) Navigator.pop(ctx);
-                  },
-                  child: Text(existing == null ? 'Aggiungi' : 'Salva'),
+          24,
+          20,
+          24,
+          MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                Text(
+                  existing == null ? 'Nuovo fornitore' : 'Modifica fornitore',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textMain,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                TextFormField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Nome fornitore o azienda *',
+                    hintText: 'Es. Ortofrutta Mario',
+                    filled: true,
+                    fillColor: AppTheme.bgCanvas,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                    ),
+                  ),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Inserisci il nome' : null,
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: waCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Numero WhatsApp *',
+                    hintText: '+39 333 1234567',
+                    filled: true,
+                    fillColor: AppTheme.bgCanvas,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                    ),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9+ ]'))
+                  ],
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Inserisci il numero WhatsApp' : null,
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: emailCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Email (opzionale)',
+                    hintText: 'ordini@fornitore.it',
+                    filled: true,
+                    fillColor: AppTheme.bgCanvas,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                    ),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: notesCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Note (giorni di consegna, orari, ecc.)',
+                    hintText: 'Es. Consegna lun-mer-ven entro le 10:00',
+                    filled: true,
+                    fillColor: AppTheme.bgCanvas,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.borderSubtle),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                    ),
+                  ),
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 22),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (!formKey.currentState!.validate()) return;
+                      final supplier = Supplier(
+                        id: existing?.id,
+                        name: nameCtrl.text.trim(),
+                        whatsapp: waCtrl.text.trim(),
+                        email: emailCtrl.text.trim().isEmpty
+                            ? null
+                            : emailCtrl.text.trim(),
+                        notes: notesCtrl.text.trim().isEmpty
+                            ? null
+                            : notesCtrl.text.trim(),
+                      );
+                      if (existing == null) {
+                        await ctx.read<SuppliersProvider>().addSupplier(supplier);
+                      } else {
+                        await ctx.read<SuppliersProvider>().updateSupplier(supplier);
+                      }
+                      if (ctx.mounted) Navigator.pop(ctx);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      existing == null ? 'Aggiungi fornitore' : 'Salva modifiche',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -168,8 +327,11 @@ class SuppliersScreen extends StatelessWidget {
     if (!context.mounted) return;
     if (hasProducts) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Non puoi eliminare un fornitore con prodotti assegnati.'),
+        SnackBar(
+          content: const Text('Non puoi eliminare un fornitore con prodotti assegnati.'),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: AppTheme.statusWarning,
         ),
       );
       return;
@@ -177,16 +339,32 @@ class SuppliersScreen extends StatelessWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Elimina fornitore'),
-        content: Text('Eliminare ${supplier.name}?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text(
+          'Elimina fornitore',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: Text('Sei sicuro di voler eliminare "${supplier.name}"?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Annulla')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(
+              'Annulla',
+              style: TextStyle(color: AppTheme.textSecondary),
+            ),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Elimina',
-                  style: TextStyle(color: Colors.red))),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Elimina',
+              style: TextStyle(
+                color: AppTheme.statusDanger,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
         ],
       ),
     );
